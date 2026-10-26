@@ -1,12 +1,12 @@
 <?php
-// Include database connection
+//  database connection
 require_once 'db.php';
 
-// Start session
+// start the session
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Retrieve inputs and sanitize/trim
+    // get the inputs and clean for checking
     $username_input = trim($_POST['username']);
     $password_input = $_POST['password'];
 
@@ -15,25 +15,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Find user by username or email
+        // find the user by username or email
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? OR email = ?");
         $stmt->execute([$username_input, $username_input]);
         $user = $stmt->fetch();
 
-        // Verify if user exists and password is correct using password_verify()
+        // verify if user exists and password is correct using password_verify()
         if ($user && password_verify($password_input, $user['password'])) {
-            // Password is correct! Set session variables
+            // if bassword is correct set session variables
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
 
-            // Redirect to homepage or dashboard
+            // redirect to index
             echo "<script>
                     alert('Login successful! Welcome, " . $user['username'] . "');
                     window.location.href = 'index.html';
                   </script>";
             exit();
         } else {
-            // Invalid credentials
+            // if credentials are invalid 
             echo "<script>
                     alert('Invalid username/email or password.');
                     window.location.href = 'login.html';

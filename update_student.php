@@ -3,7 +3,7 @@
 require_once 'db.php';
 session_start();
 
-// Protect page so only logged-in users can update records
+// only logged in users can update records
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.html");
     exit();
@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 $message = "";
 $student = null;
 
-// 1. Check if ID is provided in URL and fetch student data
+// check student id
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $student_id = $_GET['id'];
 
@@ -32,22 +32,22 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     exit();
 }
 
-// 2. Handle Form Submission for Update
+// form submission for update
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $phone = trim($_POST['phone']);
     $address = trim($_POST['address']);
-    $profile_picture_path = $student['profile_picture']; // Retain existing picture by default
+    $profile_picture_path = $student['profile_picture']; 
 
-    // Basic Validation
+    // validation
     if (empty($name) || empty($email) || empty($phone) || empty($address)) {
         $message = "<div class='alert alert-danger'>Please fill in all required text fields.</div>";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $message = "<div class='alert alert-danger'>Invalid email format.</div>";
     } else {
         
-        // Handle new profile picture upload if a new one is selected
+        // handling new profile picture upload if a new one is selected
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
             $fileTmpPath = $_FILES['profile_picture']['tmp_name'];
             $fileName = $_FILES['profile_picture']['name'];
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dest_path = $uploadFileDir . $newFileName;
 
                 if (move_uploaded_file($fileTmpPath, $dest_path)) {
-                    $profile_picture_path = $dest_path; // Update to the new picture path
+                    $profile_picture_path = $dest_path; 
                 } else {
                     $message = "<div class='alert alert-danger'>Error moving the uploaded file.</div>";
                 }
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Update Database Record if no errors occurred
+        // update database record
         if (empty($message)) {
             try {
                 $updateStmt = $pdo->prepare("UPDATE students SET name = ?, email = ?, phone = ?, address = ?, profile_picture = ? WHERE id = ?");
@@ -96,14 +96,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Student - Student Registration System</title>
-    <!-- Bootstrap 5 CSS CDN -->
+    <!-- bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons CDN -->
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
 
-    <!-- Responsive Navigation Bar (Home, View Students, Logout only) -->
+    <!-- nav bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="index.html">Student System</a>
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </nav>
 
-    <!-- Update Student Form Container -->
+    <!-- update students form -->
     <div class="container mt-5 mb-5">
         <div class="row justify-content-center">
             <div class="col-md-7">
@@ -128,10 +128,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="card-body p-4">
                         <h3 class="text-center mb-4 fw-bold text-primary">Update Student Record</h3>
 
-                        <!-- Display Feedback Messages -->
+                        <!-- feedback massage -->
                         <?php echo $message; ?>
 
-                        <!-- Form with pre-filled values -->
+                        <!-- pre-filled values -->
                         <form action="update_student.php?id=<?php echo $student['id']; ?>" method="POST" enctype="multipart/form-data">
                             
                             <div class="mb-3">
@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <textarea class="form-control" id="address" name="address" rows="3" required><?php echo htmlspecialchars($student['address']); ?></textarea>
                             </div>
 
-                            <!-- Profile Picture Section -->
+                            <!-- profile picture section -->
                             <div class="mb-3">
                                 <label for="profile_picture" class="form-label">Profile Picture (Optional)</label>
                                 <?php if (!empty($student['profile_picture'])): ?>
@@ -166,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
                             </div>
 
-                            <!-- Action Buttons: Update & Cancel -->
+                            <!-- update & cancel section buttons -->
                             <div class="d-flex justify-content-between">
                                 <a href="view_students.php" class="btn btn-secondary px-4">Cancel</a>
                                 <button type="submit" class="btn btn-primary px-4">Update Record</button>
@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle CDN -->
+    <!-- bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

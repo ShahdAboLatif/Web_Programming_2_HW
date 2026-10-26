@@ -1,31 +1,31 @@
     <?php
-// Include database connection and start session
+// database connection
 require_once 'db.php';
 session_start();
 
-// Protect page so only logged-in users can delete records
+// loged in check
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.html");
     exit();
 }
 
-// Check if student ID is provided in the URL
+// check for student id in the url
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $student_id = $_GET['id'];
 
     try {
-        // 1. Fetch the student record first to check if they have an uploaded profile picture
+        // check for profile picture in the url
         $stmt = $pdo->prepare("SELECT profile_picture FROM students WHERE id = ?");
         $stmt->execute([$student_id]);
         $student = $stmt->fetch();
 
         if ($student) {
-            // If a profile picture file exists on the server, delete it to save space
+            // if a profile pic exist on the server delete to save space
             if (!empty($student['profile_picture']) && file_exists($student['profile_picture'])) {
                 unlink($student['profile_picture']);
             }
 
-            // 2. Delete the student record from the database using a prepared statement
+            // delete student record
             $deleteStmt = $pdo->prepare("DELETE FROM students WHERE id = ?");
             if ($deleteStmt->execute([$student_id])) {
                 echo "<script>
@@ -53,7 +53,7 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     }
 
 } else {
-    // If no ID is provided, redirect back to view students
+    // if no id for the student is provided with the url then redirect to the view students page
     header("Location: view_students.php");
     exit();
 }

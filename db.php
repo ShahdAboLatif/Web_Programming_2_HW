@@ -1,10 +1,10 @@
 <?php
-// Database connection using PDO
+// database connection using PDO
 
 $host = 'localhost';
 $dbname = 'student_registration_system';// Our database name
 $username = 'root';                     // username
-$password = '';                         // empty password  
+$password = '';                         // password  is empty
 
 try {
     // PDO instance
@@ -17,7 +17,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    // If connection fails, stop execution and display the error
+    // If connection fails stop execution and display the error
     die("Database connection failed: " . $e->getMessage());
 }
 ?>
