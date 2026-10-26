@@ -1,6 +1,6 @@
 <?php
 //  database connection and start session
-require_once 'db.php';
+require_once '..\database\db.php';
 session_start();
 
 // only logged in users can add students
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (in_array($fileExtension, $allowedExtensions)) {
                 $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
-                $uploadFileDir = 'uploads/';
+                $uploadFileDir = '..\uploads/';
                 $dest_path = $uploadFileDir . $newFileName;
 
                 if (move_uploaded_file($fileTmpPath, $dest_path)) {
@@ -115,15 +115,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- responsive navigation bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="index.html">Student System</a>
+            <a class="navbar-brand" href="../index.php">Student System</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="index.html">Home</a>
+                    <a class="nav-link" href="../index.php">Home</a>
                     <a class="nav-link" href="view_students.php">View Students</a>
-                    <a class="nav-link text-danger" href="logout.php">Logout</a>
+                    <a class="nav-link text-danger" href="..\authentication\logout.php">Logout</a>
                 </div>
             </div>
         </div>

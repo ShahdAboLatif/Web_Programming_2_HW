@@ -1,6 +1,6 @@
     <?php
 // database connection
-require_once 'db.php';
+require_once '..\database\db.php';
 session_start();
 
 // loged in check

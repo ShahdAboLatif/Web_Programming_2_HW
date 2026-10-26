@@ -1,6 +1,6 @@
 <?php
 //  database connection
-require_once 'db.php';
+require_once '..\database\db.php';
 
 // start the session
 session_start();
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // redirect to index
             echo "<script>
                     alert('Login successful! Welcome, " . $user['username'] . "');
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.php';
                   </script>";
             exit();
         } else {

@@ -1,3 +1,12 @@
+<?php
+// start session and protect page
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: authentication\login.html");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,22 +18,22 @@
 </head>
 <body class="bg-light">
 
-    <!-- responsive nav bar -->
+    <!-- navigation bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="index.html">Student System</a>
+            <a class="navbar-brand" href="index.php">Student System</a>
             
-            <!-- toggel button for mobile -->
+            <!-- mobile toggle button -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
-            <!-- collaps menu  -->
+            <!-- menu -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto">
-                    <a class="nav-link active" href="index.html">Home</a>
-                    <a class="nav-link" href="view_students.php">View Students</a>
-                    <a class="nav-link text-danger" href="logout.php">Logout</a>
+                    <a class="nav-link active" href="index.php">Home</a>
+                    <a class="nav-link" href="students_crud\view_students.php">View Students</a>
+                    <a class="nav-link text-danger" href="authentication\logout.php">Logout</a>
                 </div>
             </div>
         </div>
@@ -38,13 +47,13 @@
                     <div class="card-body">
                         <h1 class="display-5 fw-bold text-primary mb-3">Student Registration System</h1>
                         <p class="lead text-muted mb-4">
-                            Welcome to the web portal. Manage student records, perform CRUD operations, and explore secure user authentication effortlessly.
+                            Welcome back, <strong><?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></strong>! Manage student records, perform CRUD operations, and explore secure user authentication effortlessly.
                         </p>
                         
-                        <!-- action buttons in the action column -->
+                        <!-- action buttons -->
                         <div class="d-flex justify-content-center gap-3 flex-wrap">
-                            <a href="add_student.php" class="btn btn-success px-4">Add Student</a>
-                            <a href="view_students.php" class="btn btn-secondary px-4">View Students</a>
+                            <a href="students_crud\add_student.php" class="btn btn-success px-4">Add Student</a>
+                            <a href="students_crud\view_students.php" class="btn btn-secondary px-4">View Students</a>
                         </div>
                     </div>
                 </div>

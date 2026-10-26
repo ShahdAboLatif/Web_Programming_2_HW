@@ -1,6 +1,6 @@
 <?php
 // database connection
-require_once 'db.php';
+require_once '..\database\db.php';
 session_start();
 
 // protect page
@@ -60,15 +60,15 @@ try {
     <!-- nav bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="index.html">Student System</a>
+            <a class="navbar-brand" href="../index.php">Student System</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="index.html">Home</a>
+                    <a class="nav-link" href="../index.php">Home</a>
                     <a class="nav-link active" href="view_students.php">View Students</a>
-                    <a class="nav-link text-danger" href="logout.php">Logout</a>
+                    <a class="nav-link text-danger" href="..\authentication\logout.php">Logout</a>
                 </div>
             </div>
         </div>
