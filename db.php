@@ -1,10 +1,10 @@
 <?php
 // database connection using PDO
 
-$host = 'localhost';
-$dbname = 'student_registration_system';// Our database name
-$username = 'root';                     // username
-$password = '';                         // password  is empty
+$host = 'sql105.infinityfree.com';
+$dbname = 'if0_43276672_student_registration_system_db';
+$username = 'root';                     
+$password = 'if0_43276672';                         
 
 try {
     // PDO instance
