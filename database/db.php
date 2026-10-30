@@ -2,9 +2,9 @@
 // database connection using PDO
 
 $host = 'localhost';
-$dbname = 'student_registration_system';// Our database name
-$username = 'root';                     // username
-$password = '';                         // password  is empty
+$dbname = 'student_registration_system';
+$username = 'root';                     
+$password = '';                         
 
 try {
     // PDO instance

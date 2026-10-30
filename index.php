@@ -15,6 +15,8 @@ if (!isset($_SESSION['user_id'])) {
     <title>Home - Student Registration System</title>
     <!-- bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- css style sheet -->
+    <link href="assets/css/style.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 
@@ -63,5 +65,7 @@ if (!isset($_SESSION['user_id'])) {
 
     <!-- bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- js -->
+     <script src="assets/js/script.js"></script>
 </body>
 </html>

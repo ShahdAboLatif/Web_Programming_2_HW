@@ -1,6 +1,6 @@
 <?php
 //  database connection and start session
-require_once '..\database\db.php';
+require_once '../database/db.php';
 session_start();
 
 // only logged in users can add students
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (in_array($fileExtension, $allowedExtensions)) {
                 $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
-                $uploadFileDir = '..\uploads/';
+                $uploadFileDir = '../uploads/';
                 $dest_path = $uploadFileDir . $newFileName;
 
                 if (move_uploaded_file($fileTmpPath, $dest_path)) {
@@ -109,6 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Add Student - Student Registration System</title>
     <!-- bootstrap-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- css style sheet -->
+    <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 
@@ -123,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="navbar-nav ms-auto">
                     <a class="nav-link" href="../index.php">Home</a>
                     <a class="nav-link" href="view_students.php">View Students</a>
-                    <a class="nav-link text-danger" href="..\authentication\logout.php">Logout</a>
+                    <a class="nav-link text-danger" href="../authentication/logout.php">Logout</a>
                 </div>
             </div>
         </div>
@@ -183,50 +185,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- AJAX script -->
-    <script>
-        const form = document.getElementById('addStudentForm');
-        const ajaxMessage = document.getElementById('ajax-message');
+    <!-- js -->
+     <script src="../assets/js/script.js"></script>
 
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-
-            // browser check for empty fields
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const address = document.getElementById('address').value.trim();
-
-            if (!name || !email || !phone || !address) {
-                ajaxMessage.innerHTML = "<div class='alert alert-danger'>Please fill in all required text fields.</div>";
-                return;
-            }
-
-            // form data for AJAX transmission
-            const formData = new FormData(form);
-
-            // Send formData via fetch API 
-            fetch('add_student.php', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    ajaxMessage.innerHTML = `<div class='alert alert-success'>${data.message} <a href='view_students.php'>View Students</a></div>`;
-                    form.reset(); 
-                } else {
-                    ajaxMessage.innerHTML = `<div class='alert alert-danger'>${data.message}</div>`;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                ajaxMessage.innerHTML = "<div class='alert alert-danger'>An unexpected error occurred. Please try again.</div>";
-            });
-        });
-    </script>
 </body>
 </html>

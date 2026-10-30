@@ -1,6 +1,6 @@
 <?php
 // database connection
-require_once '..\database\db.php';
+require_once '../database/db.php';
 session_start();
 
 // protect page
@@ -16,6 +16,12 @@ $offset = ($page - 1) * $limit;
 
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
+// Sorting configuration
+$allowedColumns = ['name', 'created_at'];
+$sort = isset($_GET['sort']) && in_array($_GET['sort'], $allowedColumns) ? $_GET['sort'] : 'created_at';
+$order = isset($_GET['order']) && strtolower($_GET['order']) === 'asc' ? 'ASC' : 'DESC';
+$nextOrder = ($order === 'ASC') ? 'DESC' : 'ASC';
+
 try {
     if (!empty($search)) {
         // count total matching records for pagination
@@ -24,16 +30,16 @@ try {
         $countStmt->execute([$searchTerm, $searchTerm, $searchTerm]);
         $totalRecords = $countStmt->fetchColumn();
 
-        // fetch matching records with limit and offset
-        $stmt = $pdo->prepare("SELECT * FROM students WHERE name LIKE ? OR email LIKE ? OR phone LIKE ? ORDER BY created_at DESC LIMIT " . (int)$limit . " OFFSET " . (int)$offset);
+        // fetch matching records with limit, offset, and sorting
+        $stmt = $pdo->prepare("SELECT * FROM students WHERE name LIKE ? OR email LIKE ? OR phone LIKE ? ORDER BY $sort $order LIMIT " . (int)$limit . " OFFSET " . (int)$offset);
         $stmt->execute([$searchTerm, $searchTerm, $searchTerm]);
     } else {
         // count total records
         $countStmt = $pdo->query("SELECT COUNT(*) FROM students");
         $totalRecords = $countStmt->fetchColumn();
 
-        // fetch all records with limit and offset
-        $stmt = $pdo->prepare("SELECT * FROM students ORDER BY created_at DESC LIMIT " . (int)$limit . " OFFSET " . (int)$offset);
+        // fetch all records with limit, offset, and sorting
+        $stmt = $pdo->prepare("SELECT * FROM students ORDER BY $sort $order LIMIT " . (int)$limit . " OFFSET " . (int)$offset);
         $stmt->execute();
     }
 
@@ -54,6 +60,8 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- css style sheet -->
+    <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 
@@ -68,7 +76,7 @@ try {
                 <div class="navbar-nav ms-auto">
                     <a class="nav-link" href="../index.php">Home</a>
                     <a class="nav-link active" href="view_students.php">View Students</a>
-                    <a class="nav-link text-danger" href="..\authentication\logout.php">Logout</a>
+                    <a class="nav-link text-danger" href="../authentication/logout.php">Logout</a>
                 </div>
             </div>
         </div>
@@ -84,18 +92,33 @@ try {
             </a>
         </div>
 
-        <!-- search bar -->
-        <form method="GET" action="view_students.php" class="mb-4">
-            <div class="input-group">
-                <input type="text" name="search" class="form-control" placeholder="Search by name, email, or phone number..." value="<?php echo htmlspecialchars($search); ?>">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-search"></i> Search
-                </button>
-                <?php if (!empty($search)): ?>
-                    <a href="view_students.php" class="btn btn-outline-secondary">Reset</a>
-                <?php endif; ?>
+        <!-- search bar and sorting -->
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+            <!-- search bar -->
+            <form method="GET" action="view_students.php" class="flex-grow-1 m-0">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Search by name, email, or phone number..." value="<?php echo htmlspecialchars($search); ?>">
+                    <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort); ?>">
+                    <input type="hidden" name="order" value="<?php echo htmlspecialchars($order); ?>">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                    <?php if (!empty($search)): ?>
+                        <a href="view_students.php" class="btn btn-outline-secondary">Reset</a>
+                    <?php endif; ?>
+                </div>
+            </form>
+
+            <!-- sorting -->
+            <div class="d-flex gap-2 text-nowrap justify-content-end">
+                <a href="view_students.php?sort=name&order=<?php echo ($sort === 'name') ? $nextOrder : 'ASC'; ?>&search=<?php echo urlencode($search); ?>" class="btn btn-sm <?php echo ($sort === 'name') ? 'btn-dark' : 'btn-outline-dark'; ?>">
+                    Sort by Name <?php if ($sort === 'name') echo ($order === 'ASC') ? '<i class="bi bi-arrow-up"></i>' : '<i class="bi bi-arrow-down"></i>'; ?>
+                </a>
+                <a href="view_students.php?sort=created_at&order=<?php echo ($sort === 'created_at') ? $nextOrder : 'ASC'; ?>&search=<?php echo urlencode($search); ?>" class="btn btn-sm <?php echo ($sort === 'created_at') ? 'btn-dark' : 'btn-outline-dark'; ?>">
+                    Sort by Date <?php if ($sort === 'created_at') echo ($order === 'ASC') ? '<i class="bi bi-arrow-up"></i>' : '<i class="bi bi-arrow-down"></i>'; ?>
+                </a>
             </div>
-        </form>
+        </div>
 
         <!-- students table -->
         <div class="card shadow-sm border-0">
@@ -109,6 +132,7 @@ try {
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Address</th>
+                                <th>Creation Date</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -129,6 +153,7 @@ try {
                                         <td><?php echo htmlspecialchars($student['email']); ?></td>
                                         <td><?php echo htmlspecialchars($student['phone']); ?></td>
                                         <td><?php echo htmlspecialchars($student['address']); ?></td>
+                                        <td><?php echo htmlspecialchars($student['created_at']); ?></td>
                                         <td class="text-center text-nowrap">
                                             <!-- update icon button -->
                                             <a href="update_student.php?id=<?php echo $student['id']; ?>" class="btn btn-sm btn-outline-primary me-1" title="Update">
@@ -143,7 +168,7 @@ try {
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">No student records found.</td>
+                                    <td colspan="7" class="text-center py-4 text-muted">No student records found.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -158,19 +183,19 @@ try {
                 <ul class="pagination justify-content-center">
                     <!-- previous button -->
                     <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
-                        <a class="page-link" href="view_students.php?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>">Previous</a>
+                        <a class="page-link" href="view_students.php?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort); ?>&order=<?php echo urlencode($order); ?>">Previous</a>
                     </li>
 
                     <!-- page numbers -->
                     <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                         <li class="page-item <?php echo ($page == $i) ? 'active' : ''; ?>">
-                            <a class="page-link" href="view_students.php?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>"><?php echo $i; ?></a>
+                            <a class="page-link" href="view_students.php?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort); ?>&order=<?php echo urlencode($order); ?>"><?php echo $i; ?></a>
                         </li>
                     <?php endfor; ?>
 
                     <!-- next button -->
                     <li class="page-item <?php echo ($page >= $totalPages) ? 'disabled' : ''; ?>">
-                        <a class="page-link" href="view_students.php?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>">Next</a>
+                        <a class="page-link" href="view_students.php?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&sort=<?php echo urlencode($sort); ?>&order=<?php echo urlencode($order); ?>">Next</a>
                     </li>
                 </ul>
             </nav>
@@ -180,5 +205,7 @@ try {
 
     <!-- bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- js -->
+     <script src="../assets/js/script.js"></script>
 </body>
 </html>

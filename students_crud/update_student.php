@@ -1,6 +1,6 @@
 <?php
 // Include database connection and start session
-require_once '..\database\db.php';
+require_once '../database/db.php';
 session_start();
 
 // only logged in users can update records
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (in_array($fileExtension, $allowedExtensions)) {
                 $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
-                $uploadFileDir = '..\uploads/';
+                $uploadFileDir = '../uploads/';
                 $dest_path = $uploadFileDir . $newFileName;
 
                 if (move_uploaded_file($fileTmpPath, $dest_path)) {
@@ -100,6 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- css style sheet -->
+    <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 
@@ -114,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="navbar-nav ms-auto">
                     <a class="nav-link" href="../index.php">Home</a>
                     <a class="nav-link" href="view_students.php">View Students</a>
-                    <a class="nav-link text-danger" href="..\authentication\logout.php">Logout</a>
+                    <a class="nav-link text-danger" href="../authentication/logout.php">Logout</a>
                 </div>
             </div>
         </div>
@@ -180,5 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- js -->
+     <script src="../assets/js/script.js"></script>
 </body>
 </html>
