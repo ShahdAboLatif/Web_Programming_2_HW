@@ -1,47 +1,79 @@
 <?php
-//  database connection
+// database connection
 require_once '../database/db.php';
 
-// start the session
+// start session
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // get the inputs and clean for checking
-    $username_input = trim($_POST['username']);
-    $password_input = $_POST['password'];
+    $username_input = trim($_POST['username'] ?? '');
+    $password_input = $_POST['password'] ?? '';
+
+    // convert input to lowercase if user signed in with email
+    $email_input = strtolower($username_input);
+
+    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
     if (empty($username_input) || empty($password_input)) {
-        die("Please fill in all fields. <a href='login.html'>Go back</a>");
+        $errorMsg = "Please fill in all fields.";
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => $errorMsg]);
+            exit();
+        } else {
+            die($errorMsg . " <a href='login.html'>Go back</a>");
+        }
     }
 
     try {
-        // find the user by username or email
+        // find user by username or email
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? OR email = ?");
-        $stmt->execute([$username_input, $username_input]);
+        $stmt->execute([$username_input, $email_input]);
         $user = $stmt->fetch();
 
-        // verify if user exists and password is correct using password_verify()
+        // verify credentials
         if ($user && password_verify($password_input, $user['password'])) {
-            // if bassword is correct set session variables
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
 
-            // redirect to index
-            echo "<script>
-                    alert('Login successful! Welcome, " . $user['username'] . "');
-                    window.location.href = '../index.php';
-                  </script>";
-            exit();
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Login successful! Welcome, ' . htmlspecialchars($user['username']) . '. Redirecting...'
+                ]);
+                exit();
+            } else {
+                echo "<script>
+                        alert('Login successful! Welcome, " . htmlspecialchars($user['username']) . "');
+                        window.location.href = '../index.php';
+                      </script>";
+                exit();
+            }
         } else {
-            // if credentials are invalid 
-            echo "<script>
-                    alert('Invalid username/email or password.');
-                    window.location.href = 'login.html';
-                  </script>";
+            $errorMsg = "Invalid username/email or password.";
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['status' => 'error', 'message' => $errorMsg]);
+                exit();
+            } else {
+                echo "<script>
+                        alert('Invalid username/email or password.');
+                        window.location.href = 'login.html';
+                      </script>";
+                exit();
+            }
         }
 
     } catch (PDOException $e) {
-        die("Database Error: " . $e->getMessage());
+        $errorMsg = "Database Error: " . $e->getMessage();
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => $errorMsg]);
+            exit();
+        } else {
+            die($errorMsg);
+        }
     }
 
 } else {

@@ -1,5 +1,5 @@
 <?php
-//  database connection and start session
+// database connection and start session
 require_once '../database/db.php';
 session_start();
 
@@ -14,28 +14,35 @@ $message = "";
 // AJAX request or form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+    $email = strtolower(trim($_POST['email'] ?? ''));
     $phone = trim($_POST['phone'] ?? '');
     $address = trim($_POST['address'] ?? '');
     $profile_picture_path = null;
 
     $errors = [];
 
-    // validation
+    // required fields check
     if (empty($name) || empty($email) || empty($phone) || empty($address)) {
         $errors[] = "Please fill in all required text fields.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    }
+
+    // email format check
+    if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Invalid email format.";
     }
 
-    // handle file apload and check foe text errors
+    // Phone number validation: digits only, 10 to 15 digits
+    if (!empty($phone) && !preg_match('/^[0-9]{10,15}$/', $phone)) {
+        $errors[] = "Phone number must contain only numbers and be between 10 to 15 digits.";
+    }
+
+    // File upload handling
     if (empty($errors)) {
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
             $fileTmpPath = $_FILES['profile_picture']['tmp_name'];
             $fileName = $_FILES['profile_picture']['name'];
             $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-            // extensions allowed
             $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
             if (in_array($fileExtension, $allowedExtensions)) {
@@ -54,8 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // check if this request came from JavaScript AJAX
-    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+    // Check if request came from JavaScript AJAX
+    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
     if (!empty($errors)) {
         $errorString = implode("<br>", $errors);
@@ -67,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "<div class='alert alert-danger'>$errorString</div>";
         }
     } else {
-        // insert into database 
         try {
             $stmt = $pdo->prepare("INSERT INTO students (name, email, phone, address, profile_picture) VALUES (?, ?, ?, ?, ?)");
             if ($stmt->execute([$name, $email, $phone, $address, $profile_picture_path])) {
@@ -139,37 +145,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="card-body p-4">
                         <h3 class="text-center mb-4 fw-bold text-primary">Add New Student</h3>
 
-                        <!-- AJAX response message  -->
+                        <!-- AJAX response message -->
                         <div id="ajax-message"></div>
 
                         <!-- php feedback message -->
                         <?php echo $message; ?>
 
                         <!-- form -->
-                        <form id="addStudentForm" enctype="multipart/form-data">
+                        <form id="addStudentForm" enctype="multipart/form-data" novalidate>
                             <div class="mb-3">
                                 <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="name" name="name" required>
+                                <div class="invalid-feedback">Full Name is required.</div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
                                 <input type="email" class="form-control" id="email" name="email" required>
+                                <div class="invalid-feedback" id="email-error">Please enter a valid email address.</div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="phone" name="phone" required>
+                                <div class="invalid-feedback" id="phone-error">Phone number must be digits only (10 to 15 digits).</div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="address" class="form-label">Address <span class="text-danger">*</span></label>
                                 <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                                <div class="invalid-feedback">Address is required.</div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="profile_picture" class="form-label">Profile Picture (Optional)</label>
                                 <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                                <div class="invalid-feedback" id="file-error">Allowed image extensions are: JPG, JPEG, PNG, GIF.</div>
                             </div>
 
                             <div class="d-grid">
@@ -184,9 +195,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <!-- js -->
-     <script src="../assets/js/script.js"></script>
+    <script src="../assets/js/script.js"></script>
 
 </body>
 </html>
