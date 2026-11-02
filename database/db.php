@@ -2,7 +2,7 @@
 // database connection using PDO
 
 $host = 'localhost';
-$dbname = 'student_registration_system';
+$dbname = 'student_registration_system_db';
 $username = 'root';                     
 $password = '';                         
 
